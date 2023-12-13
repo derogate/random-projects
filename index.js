@@ -1,9 +1,11 @@
+import endpoints from "./endpoints.js";
 
-
-function generateLinks() {
+const generateLinks = async () => {
     const linksContainer = document.querySelector('#links');
     if (!linksContainer) return;
     console.log([linksContainer]);
+    const response = await fetch(endpoints.FILE_DIR);
+    console.log(response, await response.json())
 
     const unorderedList = document.createElement('ul');
     for (let i = 0; i < 10; i++) {

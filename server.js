@@ -3,6 +3,7 @@
 import * as fs from "node:fs";
 import * as http from "node:http";
 import * as path from "node:path";
+import endpoints from "./endpoints.js";
 
 const PORT = 8000;
 
@@ -37,12 +38,24 @@ const prepareFile = async (url) => {
 };
 
 http.createServer(async (req, res) => {
-    const file = await prepareFile(req.url);
-    const statusCode = file.found ? 200 : 404;
-    const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
-    res.writeHead(statusCode, { "Content-Type": mimeType });
-    file.stream.pipe(res);
-    console.log(`${req.method} ${req.url} ${statusCode}`);
+    if (req.url === endpoints.FILE_DIR) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify
+            [
+                { 1: 'a' },
+                { 2: 'b' },
+                { 3: 'c' }
+            ]
+        )
+        console.log(`${req.method}: ${req.url} - 200 `);
+    } else {
+        const file = await prepareFile(req.url);
+        const statusCode = file.found ? 200 : 404;
+        const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
+        res.writeHead(statusCode, { "Content-Type": mimeType });
+        file.stream.pipe(res);
+        console.log(`${req.method}: ${req.url} - ${statusCode} ${file}`);
+    }
 })
 .listen(PORT);
 
