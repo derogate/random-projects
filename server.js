@@ -38,16 +38,27 @@ const prepareFile = async (url) => {
 };
 
 http.createServer(async (req, res) => {
-    if (req.url === endpoints.FILE_DIR) {
+    if (req.url === endpoints.FILE_DIR_ENTRY_HTML) {
+        debugger;
+        const findEntryHtmlFilesRecursive = () => {
+            const htmlFilesPath = [];
+            const items = fs.readdirSync("files", { withFileTypes: true, recursive: true })
+            for (const item of items) {
+                if (!item.isDirectory() && item.name === 'index.html') {
+                    htmlFilesPath.push({
+                        href: `/${item.path}/${item.name}`,
+                        folder: item.path.split('/')[1]
+                    })
+                }
+            }
+
+            return htmlFilesPath;
+        }
+        const htmlJson = JSON.stringify(findEntryHtmlFilesRecursive());
+
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify
-            [
-                { 1: 'a' },
-                { 2: 'b' },
-                { 3: 'c' }
-            ]
-        )
-        console.log(`${req.method}: ${req.url} - 200 `);
+        res.end(htmlJson)
+        console.log(`${req.method}: ${req.url} - 200`);
     } else {
         const file = await prepareFile(req.url);
         const statusCode = file.found ? 200 : 404;
@@ -59,4 +70,4 @@ http.createServer(async (req, res) => {
 })
 .listen(PORT);
 
-console.log(`Server running at http://127.0.0.1:${PORT}/`);
+console.log(`Server running at http://127.0.0.1:8000/:${PORT}/`);
