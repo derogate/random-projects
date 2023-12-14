@@ -1,27 +1,27 @@
 import endpoints from "./endpoints.js";
 
-const generateLinks = async () => {
+(async function () {
     const linksContainer = document.querySelector('#links');
     if (!linksContainer) return;
-    console.log([linksContainer]);
-    const response = await fetch(endpoints.FILE_DIR);
-    console.log(response, await response.json())
+    let links = [];
+
+    try {
+        const response = await fetch(endpoints.FILE_DIR_ENTRY_HTML);
+        const json = await response.json();
+        links.push(...json);
+    } catch (err) {
+        console.log(err)
+    }
+    if (links.length === 0) return;
 
     const unorderedList = document.createElement('ul');
-    for (let i = 0; i < 10; i++) {
+    links.forEach(link => {
         const listItem = document.createElement('li');
-        const link = document.createElement('a');
-        link.setAttribute('href', i);
-        link.innerText = `Open Folder #${i}`;
-        if (i === 9) {
-            link.setAttribute('href', 'files/counter/index.html');
-            link.innerText = `Open files/counter/index.html`;
-        }
-
-        listItem.append(link);
+        const anchorTag = document.createElement('a');
+        anchorTag.setAttribute('href', link.href);
+        anchorTag.innerText = link.folder;
+        listItem.append(anchorTag);
         unorderedList.append(listItem);
-    }
+    })
     linksContainer.append(unorderedList);
-}
-
-generateLinks();
+}());
