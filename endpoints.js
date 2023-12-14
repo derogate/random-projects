@@ -1,3 +1,3 @@
 export default {
-    FILE_DIR: '/file-dir'
+    FILE_DIR_ENTRY_HTML: '/file-dir/entry-html'
 }
