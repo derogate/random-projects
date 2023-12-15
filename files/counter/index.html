@@ -42,25 +42,27 @@
 
     <script>
         const counter = document.querySelector('#counter');
-        const counterWrapper = document.querySelector('#counter-wrapper');
         const input = document.querySelector('#input');
         const incrementBtn = document.querySelector('#increment');
         const decrementBtn = document.querySelector('#decrement');
         let counterValue = parseInt(counter.innerHTML);
 
         incrementBtn.addEventListener('click', (e) => {
+            playAudio('increment');
+            createFloatingCounterDiff('increment');
             counterValue+= parseFloat(input.value);
             counter.innerHTML = counterValue;
-            createFloatingCounterDiff('increment');
         })
 
         decrementBtn.addEventListener('click', (e) => {
+            playAudio('decrement');
+            createFloatingCounterDiff('decrement');
             counterValue-= parseFloat(input.value);
             counter.innerHTML = counterValue;
-            createFloatingCounterDiff('decrement');
         })
 
         const createFloatingCounterDiff = (type) => {
+            const counterWrapper = document.querySelector('#counter-wrapper');
             const floatingEl = document.createElement('h1');
             floatingEl.classList.add('position-absolute', 'top-0', 'end-0', 'slide-and-fade-out')
 
@@ -78,8 +80,18 @@
             }
             
             counterWrapper.append(floatingEl)
-            setTimeout(() => floatingEl.remove(), 1000)
+            setTimeout(() => floatingEl.remove(), 1500)
         }
+
+        const playAudio = (type) => {
+            if (type === 'increment') {
+                const audio = new Audio('https://www.myinstants.com/media/sounds/kaching-sound-fx.mp3');
+                audio.play();
+            } else if (type === 'decrement') {
+                const audio = new Audio('https://www.myinstants.com/media/sounds/negative-beeps.mp3');
+                audio.play();
+            }
+        } 
 
         input.addEventListener("keydown", (e) => {
             if (["-", "+", "e"].includes(e.key)) {
