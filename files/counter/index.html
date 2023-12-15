@@ -30,9 +30,13 @@
                 <h1 id="counter" class="text-center">0</h1>
             </div>
         </div>
-        <div class="d-flex gap-2 my-2">
+        <div class="d-flex align-items-center flex-wrap gap-2 my-2">
             <button id="increment" class="btn btn-primary">Increase</button>
             <button id="decrement" class="btn btn-danger">Decrease</button>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mute">
+                <label class="form-check-label" for="mute">Mute</label>
+            </div>
         </div>
         <div class="d-flex flex-column">
             <label for="input" class="form-label text-center">Amount to Change</label>
@@ -84,6 +88,9 @@
         }
 
         const playAudio = (type) => {
+            const muteCheckbox = document.querySelector('#mute');
+            if (!muteCheckbox || muteCheckbox.checked) return;
+
             if (type === 'increment') {
                 const audio = new Audio('https://www.myinstants.com/media/sounds/kaching-sound-fx.mp3');
                 audio.play();
