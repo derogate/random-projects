@@ -11,12 +11,13 @@
             animation-name: slide-and-fade-out;
             animation-timing-function: ease-out;
             animation-fill-mode: forwards;
+            transform-origin: center;
         }
 
         @keyframes slide-and-fade-out {
             100% {
                 opacity: 0%;
-                transform: translateY(var(--translateY));
+                transform: translate(var(--translateX, 0), var(--translateY, 0)) rotate(var(--rotate, 0));
             }
         }
     </style>
@@ -82,6 +83,11 @@
                 floatingEl.classList.add('text-danger');
                 floatingEl.style.setProperty('--translateY', '100%');
             }
+            const randomSign = Math.random() < 0.5 ? -1 : 1;
+            const randomTranslateX = randomSign * 10 * Math.random() + '%';
+            const randomRotate = randomSign * 10 * Math.random() + 'deg';
+            floatingEl.style.setProperty('--translateX', randomTranslateX);
+            floatingEl.style.setProperty('--rotate', randomRotate);
             
             counterWrapper.append(floatingEl)
             setTimeout(() => floatingEl.remove(), 1500)
