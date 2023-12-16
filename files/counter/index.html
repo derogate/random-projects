@@ -34,6 +34,7 @@
         <div class="d-flex align-items-center flex-wrap gap-2 my-2">
             <button id="increment" class="btn btn-primary">Increase</button>
             <button id="decrement" class="btn btn-danger">Decrease</button>
+            <button id="reset" class="btn btn-info">Reset</button>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="mute">
                 <label class="form-check-label" for="mute">Mute</label>
@@ -50,19 +51,27 @@
         const input = document.querySelector('#input');
         const incrementBtn = document.querySelector('#increment');
         const decrementBtn = document.querySelector('#decrement');
+        const resetBtn = document.querySelector('#reset');
         let counterValue = parseInt(counter.innerHTML);
 
-        incrementBtn.addEventListener('click', (e) => {
+        incrementBtn.addEventListener('click', () => {
             playAudio('increment');
             createFloatingCounterDiff('increment');
-            counterValue+= parseFloat(input.value);
+            counterValue+= parseFloat(toScientificNotation(input.value));
+            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)));
             counter.innerHTML = counterValue;
         })
 
-        decrementBtn.addEventListener('click', (e) => {
+        decrementBtn.addEventListener('click', () => {
             playAudio('decrement');
             createFloatingCounterDiff('decrement');
-            counterValue-= parseFloat(input.value);
+            counterValue-= parseFloat(toScientificNotation(input.value));
+            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)));
+            counter.innerHTML = counterValue;
+        })
+
+        resetBtn.addEventListener('click', () => {
+            counterValue = 0;
             counter.innerHTML = counterValue;
         })
 
@@ -71,9 +80,10 @@
             const floatingEl = document.createElement('h1');
             floatingEl.classList.add('position-absolute', 'top-0', 'end-0', 'slide-and-fade-out')
 
-            const correctedValue = String(parseFloat(input.value))
+            const correctedValue = String(parseFloat(toScientificNotation(input.value)))
                     .replace('+', '')
                     .replace('-', '');
+            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)), String(parseFloat(toScientificNotation(input.value))), correctedValue)
             if (type === 'increment') {
                 floatingEl.innerHTML = '+' + correctedValue;
                 floatingEl.classList.add('text-success');
@@ -91,6 +101,14 @@
             
             counterWrapper.append(floatingEl)
             setTimeout(() => floatingEl.remove(), 1500)
+        }
+
+        const toScientificNotation = (val, limit = 1000000, fractionDigits = undefined) => {
+            let numberVal;
+            if (typeof val === undefined || val === 'NaN') return val;
+            numberVal = parseFloat(val);
+            console.log(numberVal, limit, numberVal > limit, numberVal.toExponential(), numberVal.toExponential(0))
+            if (numberVal > limit) return numberVal.toExponential()
         }
 
         const playAudio = (type) => {
