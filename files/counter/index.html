@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
+    <style>
+        .slide-and-fade-out {
+            animation-duration: 1s;
+            animation-name: slide-and-fade-out;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards;
+            transform-origin: center;
+        }
+
+        @keyframes slide-and-fade-out {
+            100% {
+                opacity: 0%;
+                transform: translate(var(--translateX, 0), var(--translateY, 0)) rotate(var(--rotate, 0));
+            }
+        }
+    </style>
+
+    <title>Counter</title>
+</head>
+<body>
+    <div class="border d-flex flex-column align-items-center p-3">
+        <div style="padding: 5rem 0;">
+            <div id="counter-wrapper" class="position-relative">
+                <h1 id="counter" class="text-center">0</h1>
+            </div>
+        </div>
+        <div class="d-flex align-items-center flex-wrap gap-2 my-2">
+            <button id="increment" class="btn btn-primary">Increase</button>
+            <button id="decrement" class="btn btn-danger">Decrease</button>
+            <button id="reset" class="btn btn-info">Reset</button>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="mute">
+                <label class="form-check-label" for="mute">Mute</label>
+            </div>
+        </div>
+        <div class="d-flex flex-column">
+            <label for="input" class="form-label text-center">Amount to Change</label>
+            <input id="input" class="form-control" type="number" value="1" pattern="[0-9]">
+        </div>
+    </div>
+
+    <script>
+        const counter = document.querySelector('#counter');
+        const input = document.querySelector('#input');
+        const incrementBtn = document.querySelector('#increment');
+        const decrementBtn = document.querySelector('#decrement');
+        const resetBtn = document.querySelector('#reset');
+        let counterValue = parseInt(counter.innerHTML);
+
+        incrementBtn.addEventListener('click', () => {
+            playAudio('increment');
+            createFloatingCounterDiff('increment');
+            counterValue+= parseFloat(toScientificNotation(input.value));
+            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)));
+            counter.innerHTML = counterValue;
+        })
+
+        decrementBtn.addEventListener('click', () => {
+            playAudio('decrement');
+            createFloatingCounterDiff('decrement');
+            counterValue-= parseFloat(toScientificNotation(input.value));
+            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)));
+            counter.innerHTML = counterValue;
+        })
+
+        resetBtn.addEventListener('click', () => {
+            counterValue = 0;
+            counter.innerHTML = counterValue;
+        })
+
+        const createFloatingCounterDiff = (type) => {
+            const counterWrapper = document.querySelector('#counter-wrapper');
+            const floatingEl = document.createElement('h1');
+            floatingEl.classList.add('position-absolute', 'top-0', 'end-0', 'slide-and-fade-out')
+
+            const correctedValue = String(parseFloat(toScientificNotation(input.value)))
+                    .replace('+', '')
+                    .replace('-', '');
+            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)), String(parseFloat(toScientificNotation(input.value))), correctedValue)
+            if (type === 'increment') {
+                floatingEl.innerHTML = '+' + correctedValue;
+                floatingEl.classList.add('text-success');
+                floatingEl.style.setProperty('--translateY', '-100%');
+            } else if (type === 'decrement') {
+                floatingEl.innerHTML = '-' + correctedValue;
+                floatingEl.classList.add('text-danger');
+                floatingEl.style.setProperty('--translateY', '100%');
+            }
+            const randomSign = Math.random() < 0.5 ? -1 : 1;
+            const randomTranslateX = randomSign * 10 * Math.random() + '%';
+            const randomRotate = randomSign * 10 * Math.random() + 'deg';
+            floatingEl.style.setProperty('--translateX', randomTranslateX);
+            floatingEl.style.setProperty('--rotate', randomRotate);
+            
+            counterWrapper.append(floatingEl)
+            setTimeout(() => floatingEl.remove(), 1500)
+        }
+
+        const toScientificNotation = (val, limit = 1000000, fractionDigits = undefined) => {
+            let numberVal;
+            if (typeof val === undefined || val === 'NaN') return val;
+            numberVal = parseFloat(val);
+            console.log(numberVal, limit, numberVal > limit, numberVal.toExponential(), numberVal.toExponential(0))
+            if (numberVal > limit) return numberVal.toExponential()
+        }
+
+        const playAudio = (type) => {
+            const muteCheckbox = document.querySelector('#mute');
+            if (!muteCheckbox || muteCheckbox.checked) return;
+
+            if (type === 'increment') {
+                const audio = new Audio('https://www.myinstants.com/media/sounds/kaching-sound-fx.mp3');
+                audio.play();
+            } else if (type === 'decrement') {
+                const audio = new Audio('https://www.myinstants.com/media/sounds/negative-beeps.mp3');
+                audio.play();
+            }
+        } 
+
+        input.addEventListener("keydown", (e) => {
+            if (["-", "+", "e"].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
