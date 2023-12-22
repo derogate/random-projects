@@ -52,21 +52,21 @@
         const incrementBtn = document.querySelector('#increment');
         const decrementBtn = document.querySelector('#decrement');
         const resetBtn = document.querySelector('#reset');
+        const getInputValue = () => !input.value || isNaN(input.value) ? 0 : input.value;
         let counterValue = parseInt(counter.innerHTML);
+
 
         incrementBtn.addEventListener('click', () => {
             playAudio('increment');
             createFloatingCounterDiff('increment');
-            counterValue+= parseFloat(toScientificNotation(input.value));
-            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)));
+            counterValue+= parseFloat(getInputValue());
             counter.innerHTML = counterValue;
         })
 
         decrementBtn.addEventListener('click', () => {
             playAudio('decrement');
             createFloatingCounterDiff('decrement');
-            counterValue-= parseFloat(toScientificNotation(input.value));
-            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)));
+            counterValue-= parseFloat(getInputValue());
             counter.innerHTML = counterValue;
         })
 
@@ -80,10 +80,9 @@
             const floatingEl = document.createElement('h1');
             floatingEl.classList.add('position-absolute', 'top-0', 'end-0', 'slide-and-fade-out')
 
-            const correctedValue = String(parseFloat(toScientificNotation(input.value)))
+            const correctedValue = String(formatValue(parseFloat(getInputValue())))
                     .replace('+', '')
                     .replace('-', '');
-            // console.log(input.value, toScientificNotation(input.value), parseFloat(toScientificNotation(input.value)), String(parseFloat(toScientificNotation(input.value))), correctedValue)
             if (type === 'increment') {
                 floatingEl.innerHTML = '+' + correctedValue;
                 floatingEl.classList.add('text-success');
@@ -103,12 +102,23 @@
             setTimeout(() => floatingEl.remove(), 1500)
         }
 
-        const toScientificNotation = (val, limit = 1000000, fractionDigits = undefined) => {
-            let numberVal;
+        const formatValue = (val) => {
             if (typeof val === undefined || val === 'NaN') return val;
-            numberVal = parseFloat(val);
-            console.log(numberVal, limit, numberVal > limit, numberVal.toExponential(), numberVal.toExponential(0))
-            if (numberVal > limit) return numberVal.toExponential()
+            const formatter = Intl.NumberFormat('en', { 
+                notation: "compact",
+                roundingPriority: "morePrecision",
+                // minimumFractionDigits: 1,
+                // maximumFractionDigits: 2,
+                // minimumSignificantDigits: 1,
+                // maximumSignificantDigits: 2,
+                // trailingZeroDisplay: "stripIfInteger"
+            })
+
+            const floatVal = parseFloat(val);
+            const formattedValue = formatter.format(floatVal);
+            console.log(val, floatVal, formattedValue)
+            return val;
+            // return formattedValue;
         }
 
         const playAudio = (type) => {
