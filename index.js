@@ -5,8 +5,8 @@
 
     try {
         const response = await fetch('./entry-point.json');
-        const json = await response.json();
-        links.push(...json);
+        const { entryPointsHtml } = await response.json();
+        links.push(...entryPointsHtml);
     } catch (err) {
         console.log(err)
     }
