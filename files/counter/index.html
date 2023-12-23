@@ -36,7 +36,7 @@
             <button id="decrement" class="btn btn-danger">Decrease</button>
             <button id="reset" class="btn btn-info">Reset</button>
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="mute">
+                <input class="form-check-input" type="checkbox" id="mute" checked>
                 <label class="form-check-label" for="mute">Mute</label>
             </div>
         </div>
@@ -92,8 +92,8 @@
                 floatingEl.style.setProperty('--translateY', '100%');
             }
             const randomSign = Math.random() < 0.5 ? -1 : 1;
-            const randomTranslateX = randomSign * 5 * Math.random() + '%';
-            const randomRotate = randomSign * 5 * Math.random() + 'deg';
+            const randomTranslateX = randomSign * 10 * (1 - Math.random()) + '%';
+            const randomRotate = randomSign * 10 * (1 - Math.random()) + 'deg';
             floatingEl.style.setProperty('--translateX', randomTranslateX);
             floatingEl.style.setProperty('--rotate', randomRotate);
             
