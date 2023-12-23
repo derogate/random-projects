@@ -8,7 +8,7 @@ const findEntryHtmlFilesRecursive = () => {
     for (const item of items) {
         if (item && !item.isDirectory() && item.name === 'index.html') {
             htmlFilesPath.push({
-                href: `${repoName}/${item.path}/${item.name}`,
+                href: `${repositoryName}/${item.path}/${item.name}`,
                 folder: item.path.split('/')[1]
             })
         }
