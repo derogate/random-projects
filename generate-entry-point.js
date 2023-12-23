@@ -3,6 +3,10 @@ import path from 'node:path';
 
 const findEntryHtmlFilesRecursive = () => {
     const repoName = path.resolve().split('/')[2] ?? '';
+    console.log({
+        resolvedPath: path.resolve(),
+        resolvedPath_split: path.resolve().split('/')
+    })
     const htmlFilesPath = [];
     const items = fs.readdirSync("files", { withFileTypes: true, recursive: true })
     for (const item of items) {
