@@ -25,10 +25,10 @@
     <title>Counter</title>
 </head>
 <body>
-    <div class="border d-flex flex-column align-items-center p-3">
+    <div class="overflow-hidden border d-flex flex-column align-items-center p-3">
         <div style="padding: 5rem 0;">
             <div id="counter-wrapper" class="position-relative">
-                <h1 id="counter" class="text-center">0</h1>
+                <h1 id="counter" class="text-center text-break">0</h1>
             </div>
         </div>
         <div class="d-flex align-items-center flex-wrap gap-2 my-2">
@@ -42,7 +42,7 @@
         </div>
         <div class="d-flex flex-column">
             <label for="input" class="form-label text-center">Amount to Change</label>
-            <input id="input" class="form-control" type="number" value="9999" pattern="[0-9]">
+            <input id="input" class="form-control" type="number" value="1" pattern="[0-9]">
         </div>
     </div>
 
@@ -54,7 +54,6 @@
         const resetBtn = document.querySelector('#reset');
         const getInputValue = () => !input.value || isNaN(input.value) ? 0 : input.value;
         let counterValue = parseInt(counter.innerHTML);
-
 
         incrementBtn.addEventListener('click', () => {
             playAudio('increment');
@@ -93,8 +92,8 @@
                 floatingEl.style.setProperty('--translateY', '100%');
             }
             const randomSign = Math.random() < 0.5 ? -1 : 1;
-            const randomTranslateX = randomSign * 10 * Math.random() + '%';
-            const randomRotate = randomSign * 10 * Math.random() + 'deg';
+            const randomTranslateX = randomSign * 5 * Math.random() + '%';
+            const randomRotate = randomSign * 5 * Math.random() + 'deg';
             floatingEl.style.setProperty('--translateX', randomTranslateX);
             floatingEl.style.setProperty('--rotate', randomRotate);
             
@@ -105,20 +104,12 @@
         const formatValue = (val) => {
             if (typeof val === undefined || val === 'NaN') return val;
             const formatter = Intl.NumberFormat('en', { 
-                notation: "compact",
-                // roundingPriority: "morePrecision",
-                // minimumFractionDigits: 1,
-                // maximumFractionDigits: 2,
-                // minimumSignificantDigits: 1,
-                // maximumSignificantDigits: 2,
-                // trailingZeroDisplay: "stripIfInteger"
+                notation: "compact"
             })
 
             const floatVal = parseFloat(val);
             const formattedValue = formatter.format(floatVal);
-            console.log(val, floatVal, formattedValue)
-            return val;
-            // return formattedValue;
+            return formattedValue;
         }
 
         const playAudio = (type) => {
