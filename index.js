@@ -1,12 +1,10 @@
-import endpoints from "./endpoints.js";
-
 (async function () {
     const linksContainer = document.querySelector('#links');
     if (!linksContainer) return;
     let links = [];
 
     try {
-        const response = await fetch(endpoints.FILE_DIR_ENTRY_HTML);
+        const response = await fetch('./entry-point.json');
         const json = await response.json();
         links.push(...json);
     } catch (err) {
