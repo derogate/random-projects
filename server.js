@@ -3,7 +3,6 @@
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
-import endpoints from "./endpoints.js";
 
 const PORT = 8000;
 
@@ -38,35 +37,12 @@ const prepareFile = async (url) => {
 };
 
 http.createServer(async (req, res) => {
-    if (req.url === endpoints.FILE_DIR_ENTRY_HTML) {
-        debugger;
-        const findEntryHtmlFilesRecursive = () => {
-            const htmlFilesPath = [];
-            const items = fs.readdirSync("files", { withFileTypes: true, recursive: true })
-            for (const item of items) {
-                if (!item.isDirectory() && item.name === 'index.html') {
-                    htmlFilesPath.push({
-                        href: `/${item.path}/${item.name}`,
-                        folder: item.path.split('/')[1]
-                    })
-                }
-            }
-
-            return htmlFilesPath;
-        }
-        const htmlJson = JSON.stringify(findEntryHtmlFilesRecursive());
-
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(htmlJson)
-        console.log(`${req.method}: ${req.url} - 200`);
-    } else {
-        const file = await prepareFile(req.url);
-        const statusCode = file.found ? 200 : 404;
-        const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
-        res.writeHead(statusCode, { "Content-Type": mimeType });
-        file.stream.pipe(res);
-        console.log(`${req.method}: ${req.url} - ${statusCode}`);
-    }
+    const file = await prepareFile(req.url);
+    const statusCode = file.found ? 200 : 404;
+    const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
+    res.writeHead(statusCode, { "Content-Type": mimeType });
+    file.stream.pipe(res);
+    console.log(`${req.method}: ${req.url} - ${statusCode}`);
 })
 .listen(PORT);
 
