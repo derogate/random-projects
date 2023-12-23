@@ -19,7 +19,6 @@
             const script = document.querySelector('script');
             if (!anchor || !header || !script) return;
             
-            console.log(isGithubCodespaces, GITHUB_REPOSITORY_NO_USER)
             const href = isGithubCodespaces ? '/' : `/${GITHUB_REPOSITORY_NO_USER}`;
             anchor.setAttribute('href', href)
             anchor.innerHTML = 'Go Back Home';
