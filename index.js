@@ -1,6 +1,7 @@
 (async function () {
     const linksContainer = document.querySelector('#links');
-    if (!linksContainer) return;
+    const script = document.querySelector('script');
+    if (!linksContainer || !script) return;
     let links = [];
 
     try {
@@ -22,4 +23,5 @@
         unorderedList.append(listItem);
     })
     linksContainer.append(unorderedList);
+    script.remove();
 }());

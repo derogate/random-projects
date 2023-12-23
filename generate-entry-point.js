@@ -3,7 +3,7 @@ import fs from 'node:fs';
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY ?? '';
 const GITHUB_REPOSITORY_NO_USER = GITHUB_REPOSITORY.split('/').reverse()[0] ?? '';
 const isGithubPages = process.env.GITHUB_PAGES === "true";
-// const isGithubCodespaces = process.env.CODESPACES === "true";
+const isGithubCodespaces = process.env.CODESPACES === "true";
 
 const findEntryHtmlFilesRecursive = () => {
     const htmlFilesPath = [];
@@ -36,7 +36,7 @@ const json = JSON.stringify({
     GITHUB_REPOSITORY,
     GITHUB_REPOSITORY_NO_USER,
     isGithubPages,
-    // isGithubCodespaces,
+    isGithubCodespaces,
     entryPointsHtml: findEntryHtmlFilesRecursive()
 }, undefined, 4)
 console.log(json)

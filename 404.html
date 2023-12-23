@@ -8,14 +8,23 @@
 </head>
 <body>
     <h1>404 - Page Not Found</h1>
-    <a href="#">Go Back Home</a>
 
     <script>
-        const { GITHUB_REPOSITORY_NO_USER } = (await (await fetch('./entry-point.json')).json());
-        const anchor = document.querySelector('a');
-        if (anchor) {
+        (async () => {
+            const response = await fetch('./entry-point.json');
+            const { isGithubCodespaces, GITHUB_REPOSITORY_NO_USER } = await response.json();
+
+            const anchor = document.createElement('a');
+            const header = document.querySelector('h1');
+            const script = document.querySelector('script');
+            if (!anchor || !header || !script) return;
+
+            const href = isGithubCodespaces ? '/' : `/${GITHUB_REPOSITORY_NO_USER}`;
             anchor.setAttribute('href', `/${GITHUB_REPOSITORY_NO_USER}`)
-        }
+            anchor.innerHTML = 'Go Back Home';
+            header.insertAdjacentElement('afterend', anchor);
+            script.remove();
+        })()
     </script>
 </body>
 </html>
