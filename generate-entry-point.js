@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY ?? '';
-const GITHUB_REPOSITORY_NO_USER = GITHUB_REPOSITORY.split('/').reverse()[0];
+const GITHUB_REPOSITORY_NO_USER = GITHUB_REPOSITORY.split('/').reverse()[0] ?? '';
+const isGithubPages = process.env.GITHUB_PAGES === "true";
 
 const findEntryHtmlFilesRecursive = () => {
     const htmlFilesPath = [];
@@ -9,7 +10,7 @@ const findEntryHtmlFilesRecursive = () => {
     for (const item of items) {
         if (item && !item.isDirectory() && item.name === 'index.html') {
             htmlFilesPath.push({
-                href: `${GITHUB_REPOSITORY_NO_USER}/${item.path}/${item.name}`,
+                href: `/${GITHUB_REPOSITORY_NO_USER}/${item.path}/${item.name}`,
                 folder: item.path.split('/')[1]
             })
         }
@@ -21,6 +22,7 @@ const findEntryHtmlFilesRecursive = () => {
 const json = JSON.stringify({
     GITHUB_REPOSITORY,
     GITHUB_REPOSITORY_NO_USER,
+    isGithubPages,
     env: process.env,
     entryPointsHtml: findEntryHtmlFilesRecursive()
 }, undefined, 4)
