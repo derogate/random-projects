@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "generate-entry-point": "node generate-entry-point.js",
+    "start-dev-server": "node server.js",
+    "dev": "npm run generate-entry-point && npm run start-dev-server"
   },
   "keywords": [],
   "author": "",
