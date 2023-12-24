@@ -11,7 +11,7 @@
             background-color: rgba(0, 0, 0, 0.05);
             outline: 1px solid rgba(255, 0, 0, 0.5);
             border-radius: 0.375rem;
-            min-width: 185px;
+            min-width: 100%;
             padding-left: 3px;
         }
     </style>      
@@ -22,7 +22,7 @@
     <div class="container">
         <h1>To-Do</h1>
         <div class="hstack flex-wrap gap-2 pb-3">
-            <div class="hstack gap-2">
+            <div class="hstack gap-2 w-100">
                 <input id="create-task" type="text" class="form-control" placeholder="Enter new task name">
                 <button onclick="createTask()" class="btn btn-primary create-task-btn" type="button">Create</button>
             </div>
@@ -98,8 +98,9 @@
             createTaskInput.value = '';
         }
 
-        createTaskInput.oninput = (e) => {
-            const hasValue = e.target.value.trim() !== '';
+        const handleDisabledCreateTaskInput = () => {
+            if (!createTaskInput) return;
+            const hasValue = createTaskInput.value.trim() !== '';
             if (hasValue && createTaskBtn.hasAttribute('disabled')) {
                 createTaskBtn.removeAttribute('disabled')
                 return;
@@ -109,6 +110,9 @@
                 createTaskBtn.setAttribute('disabled', true)
             }
         }
+
+        createTaskInput.oninput = (e) => handleDisabledCreateTaskInput();
+        handleDisabledCreateTaskInput();
 
         createTaskInput.onkeydown = (e) => {
             if (e.keyCode === 13 && e.key === 'Enter') {
