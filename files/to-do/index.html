@@ -3,9 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
+
+    <style>
+        label[contenteditable=true] {
+            background-color: rgba(0, 0, 0, 0.05);
+            outline: 1px solid rgb(255, 150, 150);
+            border-radius: 0.375rem;
+            min-width: 188px;
+        }
+    </style>      
+
     <title>To-Do</title>
 </head>
 <body>
-    files/to-do/index.html
+    <div class="container">
+        <h1>To-Do</h1>
+        <div class="hstack flex-wrap gap-2 mb-3">
+            <div class="hstack gap-2">
+                <input id="create-task" type="text" class="form-control" placeholder="Enter new task name">
+                <button onclick="createTask()" class="btn btn-primary create-task-btn" type="button">Create</button>
+            </div>
+        </div>
+
+        <ul class="tasks-list list-unstyled list-group"></ul>
+    </div>
+
+    <script>
+        const createTaskInput = document.querySelector('#create-task');
+        const createTaskBtn = document.querySelector('.create-task-btn');
+        const tasksList = document.querySelector('ul.tasks-list');
+
+        const createTask = () => {
+            if (!tasksList || !createTaskInput || !createTaskInput.value.trim()) return;
+
+            const flexListItem = document.createElement('li');
+            const wrapper_checkerInput_label = document.createElement('div');
+            const wrapper_editBtn_deleteBtn = document.createElement('div');
+
+            const checkerInput = document.createElement('input');
+            const label = document.createElement('label');
+            const deleteBtn = document.createElement('button');
+            const editBtn = document.createElement('button');
+            
+            flexListItem.className = 'list-group-item list-group-item-action hstack justify-content-between flex-wrap gap-2';
+            wrapper_checkerInput_label.className = 'hstack gap-2';
+            wrapper_editBtn_deleteBtn.className = 'hstack flex-wrap';
+            
+            const tasksListIndex = tasksList.children.length;
+            checkerInput.setAttribute('type', 'checkbox');
+            checkerInput.setAttribute('id', `task-${tasksListIndex}`);
+            
+            label.setAttribute('for', `task-${tasksListIndex}`);
+            label.className = 'text-break d-inline-block';
+            label.innerHTML = createTaskInput.value;
+
+            editBtn.className = 'btn text-secondary border-0 p-0';
+            editBtn.innerHTML = '&#9998;';
+            editBtn.onclick = (e) => {
+                if (!label.isContentEditable) {
+                    label.contentEditable = true;
+                    checkerInput.setAttribute('disabled', true);
+                    deleteBtn.setAttribute('disabled', true);
+                    deleteBtn.style.opacity = '0.25';
+
+                    editBtn.innerHTML = 'Cancel Edit';
+                    editBtn.style.fontSize = '0.5rem';
+                } else {
+                    label.contentEditable = false;
+                    checkerInput.removeAttribute('disabled');
+                    deleteBtn.removeAttribute('disabled');
+                    deleteBtn.style.opacity = '1';
+
+                    editBtn.innerHTML = '&#9998;';
+                    editBtn.style.fontSize = '1rem';
+                }
+
+                // TODO: save operation
+            }
+
+            deleteBtn.className = 'btn border-0 p-0';
+            deleteBtn.innerHTML = '&#x1F5D1;';
+            deleteBtn.onclick = () => flexListItem.remove();
+
+            wrapper_checkerInput_label.append(checkerInput, label);
+            wrapper_editBtn_deleteBtn.append(editBtn, deleteBtn);
+            flexListItem.append(wrapper_checkerInput_label, wrapper_editBtn_deleteBtn);
+            tasksList.append(flexListItem);
+
+            createTaskInput.value = '';
+        }
+
+        createTaskInput.addEventListener('input', (e) => {
+            const hasValue = e.target.value.trim() !== '';
+            if (hasValue && createTaskBtn.hasAttribute('disabled')) {
+                createTaskBtn.removeAttribute('disabled')
+                return;
+            }
+
+            if (!hasValue && createTaskBtn && !createTaskBtn.hasAttribute('disabled')) {
+                createTaskBtn.setAttribute('disabled', true)
+            }
+        })
+    </script>
 </body>
 </html>
