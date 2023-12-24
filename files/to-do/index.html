@@ -9,9 +9,10 @@
     <style>
         label[contenteditable=true] {
             background-color: rgba(0, 0, 0, 0.05);
-            outline: 1px solid rgb(255, 150, 150);
+            outline: 1px solid rgba(255, 0, 0, 0.5);
             border-radius: 0.375rem;
-            min-width: 188px;
+            min-width: 185px;
+            padding-left: 3px;
         }
     </style>      
 
@@ -64,12 +65,13 @@
             editBtn.onclick = (e) => {
                 if (!label.isContentEditable) {
                     label.contentEditable = true;
+                    label.focus();
                     checkerInput.setAttribute('disabled', true);
                     deleteBtn.setAttribute('disabled', true);
                     deleteBtn.style.opacity = '0.25';
 
-                    editBtn.innerHTML = 'Cancel Edit';
-                    editBtn.style.fontSize = '0.5rem';
+                    editBtn.innerHTML = 'Save';
+                    editBtn.style.fontSize = '0.75rem';
                 } else {
                     label.contentEditable = false;
                     checkerInput.removeAttribute('disabled');
