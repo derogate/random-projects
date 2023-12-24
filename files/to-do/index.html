@@ -21,14 +21,14 @@
 <body>
     <div class="container">
         <h1>To-Do</h1>
-        <div class="hstack flex-wrap gap-2 mb-3">
+        <div class="hstack flex-wrap gap-2 pb-3">
             <div class="hstack gap-2">
                 <input id="create-task" type="text" class="form-control" placeholder="Enter new task name">
                 <button onclick="createTask()" class="btn btn-primary create-task-btn" type="button">Create</button>
             </div>
         </div>
 
-        <ul class="tasks-list list-unstyled list-group"></ul>
+        <ul class="tasks-list list-unstyled list-group pb-3"></ul>
     </div>
 
     <script>
@@ -60,15 +60,17 @@
             label.className = 'text-break d-inline-block';
             label.innerHTML = createTaskInput.value;
 
-            editBtn.className = 'btn text-secondary border-0 p-0';
+            editBtn.className = 'btn text-secondary py-0 px-1';
             editBtn.innerHTML = '&#9998;';
             editBtn.onclick = (e) => {
+                deleteBtn.classList.toggle('opacity-25');
+                deleteBtn.classList.toggle('border-white');
+
                 if (!label.isContentEditable) {
                     label.contentEditable = true;
                     label.focus();
                     checkerInput.setAttribute('disabled', true);
                     deleteBtn.setAttribute('disabled', true);
-                    deleteBtn.style.opacity = '0.25';
 
                     editBtn.innerHTML = 'Save';
                     editBtn.style.fontSize = '0.75rem';
@@ -76,16 +78,15 @@
                     label.contentEditable = false;
                     checkerInput.removeAttribute('disabled');
                     deleteBtn.removeAttribute('disabled');
-                    deleteBtn.style.opacity = '1';
 
                     editBtn.innerHTML = '&#9998;';
                     editBtn.style.fontSize = '1rem';
-                }
 
-                // TODO: save operation
+                    // TODO: save operation
+                }
             }
 
-            deleteBtn.className = 'btn border-0 p-0';
+            deleteBtn.className = 'btn p-0';
             deleteBtn.innerHTML = '&#x1F5D1;';
             deleteBtn.onclick = () => flexListItem.remove();
 
