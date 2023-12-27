@@ -61,9 +61,30 @@
         const addTaskBtn = document.querySelector('.create-task-btn');
         const tasksList = document.querySelector('ul.tasks-list');
 
-        const addTask = () => {
-            if (!tasksList || !addTaskInput || !addTaskInput.value.trim()) return;
+        const localStorageKey = 'derogate/random-projects/to-do';
+        let tasks = [];
+        
+        const handleAddButtonDisable = () => {
+            if (!addTaskInput) return;
+            const hasValue = addTaskInput.value.trim() !== '';
+            if (hasValue && addTaskBtn.hasAttribute('disabled')) {
+                addTaskBtn.removeAttribute('disabled')
+                return;
+            }
 
+            if (!hasValue && addTaskBtn && !addTaskBtn.hasAttribute('disabled')) {
+                addTaskBtn.setAttribute('disabled', true)
+            }
+        }
+
+        addTaskInput.oninput = () => handleAddButtonDisable();
+        addTaskInput.onkeydown = (e) => {
+            if (e.keyCode === 13 && e.key === 'Enter' && addTaskInput.value.trim() !== '') {
+                addTask();
+            }
+        }
+        
+        const addTask = (index, name, isChecked, saveLocally = true) => {
             const flexListItem = document.createElement('li');
             const wrapper_checkerInput_label = document.createElement('div');
             const wrapper_editBtn_deleteBtn = document.createElement('div');
@@ -72,23 +93,30 @@
             const label = document.createElement('label');
             const deleteBtn = document.createElement('button');
             const editBtn = document.createElement('button');
+
+            const tasksListIndex = typeof index === 'number' ? index : tasksList.children.length;
             
             flexListItem.className = 'list-group-item list-group-item-action hstack justify-content-between flex-wrap gap-2';
             wrapper_checkerInput_label.className = 'form-check hstack gap-2';
             wrapper_editBtn_deleteBtn.className = 'hstack flex-wrap gap-2';
             
-            const tasksListIndex = tasksList.children.length;
+            if (isChecked) checkerInput.checked = true;
             checkerInput.className = 'form-check-input';
             checkerInput.setAttribute('type', 'checkbox');
             checkerInput.setAttribute('id', `task-${tasksListIndex}`);
+            checkerInput.onchange = function onCheckboxChange(e) {
+                updateTasksData(tasksListIndex, label.innerHTML ?? [tasksListIndex].taskName, e.target.checked);
+            }
             
             label.setAttribute('for', `task-${tasksListIndex}`);
             label.className = 'text-break d-inline-block';
-            label.innerHTML = addTaskInput.value;
+            label.innerHTML = name ? name 
+                : tasks[tasksListIndex] ? tasks[tasksListIndex].taskName 
+                : addTaskInput.value;
 
             editBtn.className = 'btn btn-light py-0 px-1';
             editBtn.innerHTML = '&#9998;';
-            editBtn.onclick = (e) => {
+            editBtn.onclick = function onEditTask(e) {
                 deleteBtn.classList.toggle('opacity-25');
                 deleteBtn.classList.toggle('border-white');
 
@@ -108,44 +136,83 @@
                     editBtn.innerHTML = '&#9998;';
                     editBtn.style.fontSize = '1rem';
 
-                    // TODO: save operation
+                    updateTasksData(tasksListIndex, label.innerHTML ?? [tasksListIndex].taskName, checkerInput.checked);
                 }
             }
 
             deleteBtn.className = 'btn btn-light p-0';
             deleteBtn.innerHTML = '&#x1F5D1;';
-            deleteBtn.onclick = () => flexListItem.remove();
+            deleteBtn.onclick = function onDeleteTask() {
+                flexListItem.remove();
+                deleteTask(tasksListIndex);
+            }
 
             wrapper_checkerInput_label.append(checkerInput, label);
             wrapper_editBtn_deleteBtn.append(editBtn, deleteBtn);
             flexListItem.append(wrapper_checkerInput_label, wrapper_editBtn_deleteBtn);
             tasksList.append(flexListItem);
 
+            if (saveLocally) updateTasksData(tasksListIndex, label.innerHTML, isChecked);
+
             addTaskInput.value = '';
             handleAddButtonDisable();
         }
 
-        const handleAddButtonDisable = () => {
-            if (!addTaskInput) return;
-            const hasValue = addTaskInput.value.trim() !== '';
-            if (hasValue && addTaskBtn.hasAttribute('disabled')) {
-                addTaskBtn.removeAttribute('disabled')
-                return;
+        const updateTasksData = (tasksListIndex, taskName, checked, saveLocally = true) => {
+            console.log(tasksListIndex, taskName, checked, saveLocally)
+
+            // if task exist in tasks array, update it
+            if (tasks[tasksListIndex]) {
+                tasks[tasksListIndex] = {
+                    tasksListIndex,
+                    taskName,
+                    checked
+                }
+
+            // else append task to tasks array
+            } else {
+                const taskItem = {
+                    tasksListIndex,
+                    taskName,
+                    checked
+                }
+                tasks.push(taskItem);
             }
 
-            if (!hasValue && addTaskBtn && !addTaskBtn.hasAttribute('disabled')) {
-                addTaskBtn.setAttribute('disabled', true)
-            }
+            if (saveLocally) saveTasksToLocaleStorage();
         }
 
-        addTaskInput.oninput = (e) => handleAddButtonDisable();
+        const deleteTask = (tasksListIndex, saveLocally = true) => {
+            console.log('deleteTask before', tasks, tasksListIndex, saveLocally)
+            tasks.splice(tasksListIndex, 1);
+            updateTasksDataIndex();
+            console.log('deleteTask after', tasks)
+            if (saveLocally) saveTasksToLocaleStorage();
+        }
+
+        const updateTasksDataIndex = async () => {
+            tasks.forEach((task, index) => task.tasksListIndex = index);
+        }
+
+        const saveTasksToLocaleStorage = () => {
+            const stringifiedTasks = JSON.stringify(tasks); 
+            window.localStorage.setItem(localStorageKey, stringifiedTasks);
+        }
+
+        const loadFromLocalStorage = () => {
+            const stringifiedData = window.localStorage.getItem(localStorageKey);
+            if (!stringifiedData) return;
+
+            const data = JSON.parse(stringifiedData);
+            if (!data) return;
+
+            data.forEach(x => {
+                x && addTask(x.tasksListIndex, x.taskName, x.checked)
+            })
+        }
+
+        loadFromLocalStorage();
         handleAddButtonDisable();
-
-        addTaskInput.onkeydown = (e) => {
-            if (e.keyCode === 13 && e.key === 'Enter') {
-                addTask();
-            }
-        }
     </script>
 </body>
 </html>
