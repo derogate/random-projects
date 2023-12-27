@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
     <style>
         label[contenteditable=true] {
@@ -43,7 +43,38 @@
 </head>
 <body>
     <div class="container d-flex flex-column justify-content-center min-vh-100">
-        <h1 class="py-3 mb-0">To-Do</h1>
+        <div class="hstack justify-content-between flex-wrap gap-2 py-3">
+            <h1 class="mb-0">To-Do</h1>
+            <button type="button" 
+                class="btn btn-danger opacity-0 invisible"
+                id="delete-all-tasks-confirm-btn"
+                data-bs-toggle="modal" 
+                data-bs-target="#delete-confirmation-modal">
+                Delete All
+            </button>
+
+            <div class="modal fade" 
+                id="delete-confirmation-modal" 
+                tabindex="-1"
+                aria-labelledby="delete-confirmation-modal-label" 
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="delete-confirmation-modal-label">Confirm Deletion</h1>
+                            <button type="button" class="btn-close delete-confirmation-modal-header-dismiss" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete all tasks?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button onclick="deleteAllTasks()" type="button" class="btn btn-danger">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="wrapper_create-task hstack gap-2 w-100">
             <input id="create-task" type="text" class="form-control" placeholder="Enter new task name">
             <button onclick="addTask()" class="btn btn-primary create-task-btn" type="button">Add</button>
@@ -60,12 +91,7 @@
         const addTaskInput = document.querySelector('#create-task');
         const addTaskBtn = document.querySelector('.create-task-btn');
         const tasksList = document.querySelector('ul.tasks-list');
-        let localStorageKey = fetch('../../entry-point.json').then((response) => {
-            return response.json().then( ({ GITHUB_REPOSITORY }) => {
-                return GITHUB_REPOSITORY + '/' + window.location.href.split('/').reverse()[1];
-            })
-        })
-        .catch(err => console.log(err));
+        const localStorageKey = 'derogate/random-projects/to-do';
         let tasks = [];
         
         const addTask = (index, name, isChecked, saveLocally = true) => {
@@ -158,6 +184,7 @@
 
             addTaskInput.value = '';
             handleAddButtonDisable();
+            handleDeleteAllTasksButtonDisable();
         }
 
         const updateTasksData = (tasksListIndex, taskName, checked, saveLocally = true) => {
@@ -187,6 +214,19 @@
             updateTasksDataIndex();
             callback();
             if (saveLocally) saveTasksToLocaleStorage();
+            handleDeleteAllTasksButtonDisable();
+        }
+
+        const deleteAllTasks = (saveLocally = true) => {
+            tasks = [];
+            
+            const tasksListChildren = Array.from(tasksList.children);
+            tasksListChildren.forEach(el => el.remove());
+            if (saveLocally) saveTasksToLocaleStorage();
+
+            const dismissBtn = document.querySelector('.delete-confirmation-modal-header-dismiss');
+            if (dismissBtn) dismissBtn.click();
+            handleDeleteAllTasksButtonDisable();
         }
 
         const updateTasksDataIndex = () => {
@@ -198,16 +238,20 @@
             window.localStorage.setItem(localStorageKey, stringifiedTasks);
         }
 
-        const loadFromLocalStorage = () => {
-            const stringifiedData = window.localStorage.getItem(localStorageKey);
-            if (!stringifiedData) return;
+        addTaskInput.oninput = () => handleAddButtonDisable();
+        addTaskInput.onkeydown = (e) => {
+            if (e.keyCode === 13 && e.key === 'Enter' && addTaskInput.value.trim() !== '') {
+                addTask();
+            }
+        }
 
-            const data = JSON.parse(stringifiedData);
-            if (!data) return;
-
-            data.forEach(x => {
-                x && addTask(x.tasksListIndex, x.taskName, x.checked)
-            })
+        const handleDeleteAllTasksButtonDisable = () => {
+            const btn = document.querySelector('#delete-all-tasks-confirm-btn');
+            if (tasks.length < 2) {
+                btn.classList.add('opacity-0', 'invisible');
+            } else {
+                btn.classList.remove('opacity-0', 'invisible');
+            }
         }
 
         const handleAddButtonDisable = () => {
@@ -223,15 +267,23 @@
             }
         }
 
-        addTaskInput.oninput = () => handleAddButtonDisable();
-        addTaskInput.onkeydown = (e) => {
-            if (e.keyCode === 13 && e.key === 'Enter' && addTaskInput.value.trim() !== '') {
-                addTask();
-            }
-        }
+        const loadFromLocalStorage = () => {
+            const stringifiedData = window.localStorage.getItem(localStorageKey);
+            if (!stringifiedData) return;
 
-        loadFromLocalStorage();
-        handleAddButtonDisable();
+            const data = JSON.parse(stringifiedData);
+            if (!data) return;
+
+            data.forEach(x => {
+                x && addTask(x.tasksListIndex, x.taskName, x.checked)
+            })
+        }
+        
+        const onInit = () => {
+            handleAddButtonDisable();
+            loadFromLocalStorage();
+        }
+        onInit();
     </script>
 </body>
 </html>
