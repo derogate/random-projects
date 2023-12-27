@@ -60,8 +60,12 @@
         const addTaskInput = document.querySelector('#create-task');
         const addTaskBtn = document.querySelector('.create-task-btn');
         const tasksList = document.querySelector('ul.tasks-list');
-
-        const localStorageKey = 'derogate/random-projects/to-do';
+        let localStorageKey = fetch('../../entry-point.json').then((response) => {
+            return response.json().then( ({ GITHUB_REPOSITORY }) => {
+                return GITHUB_REPOSITORY + '/' + window.location.href.split('/').reverse()[1];
+            })
+        })
+        .catch(err => console.log(err));
         let tasks = [];
         
         const addTask = (index, name, isChecked, saveLocally = true) => {
