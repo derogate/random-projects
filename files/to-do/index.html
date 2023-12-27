@@ -64,37 +64,18 @@
         const localStorageKey = 'derogate/random-projects/to-do';
         let tasks = [];
         
-        const handleAddButtonDisable = () => {
-            if (!addTaskInput) return;
-            const hasValue = addTaskInput.value.trim() !== '';
-            if (hasValue && addTaskBtn.hasAttribute('disabled')) {
-                addTaskBtn.removeAttribute('disabled')
-                return;
-            }
-
-            if (!hasValue && addTaskBtn && !addTaskBtn.hasAttribute('disabled')) {
-                addTaskBtn.setAttribute('disabled', true)
-            }
-        }
-
-        addTaskInput.oninput = () => handleAddButtonDisable();
-        addTaskInput.onkeydown = (e) => {
-            if (e.keyCode === 13 && e.key === 'Enter' && addTaskInput.value.trim() !== '') {
-                addTask();
-            }
-        }
-        
         const addTask = (index, name, isChecked, saveLocally = true) => {
             const flexListItem = document.createElement('li');
             const wrapper_checkerInput_label = document.createElement('div');
             const wrapper_editBtn_deleteBtn = document.createElement('div');
-
+            
             const checkerInput = document.createElement('input');
             const label = document.createElement('label');
             const deleteBtn = document.createElement('button');
             const editBtn = document.createElement('button');
 
-            const tasksListIndex = typeof index === 'number' ? index : tasksList.children.length;
+            if (!tasksList || !flexListItem) return;
+            const tasksListIndex = Array.from(tasksList.children).indexOf(flexListItem);
             
             flexListItem.className = 'list-group-item list-group-item-action hstack justify-content-between flex-wrap gap-2';
             wrapper_checkerInput_label.className = 'form-check hstack gap-2';
@@ -103,15 +84,15 @@
             if (isChecked) checkerInput.checked = true;
             checkerInput.className = 'form-check-input';
             checkerInput.setAttribute('type', 'checkbox');
-            checkerInput.setAttribute('id', `task-${tasksListIndex}`);
+            checkerInput.setAttribute('id', `checkbox-task-${label.innerHTML}`);
             checkerInput.onchange = function onCheckboxChange(e) {
                 updateTasksData(tasksListIndex, label.innerHTML ?? [tasksListIndex].taskName, e.target.checked);
             }
             
-            label.setAttribute('for', `task-${tasksListIndex}`);
+            label.setAttribute('for', `checkbox-task-${label.innerHTML}`);
             label.className = 'text-break d-inline-block';
             label.innerHTML = name ? name 
-                : tasks[tasksListIndex] ? tasks[tasksListIndex].taskName 
+                : tasks[index] ? tasks[index].taskName 
                 : addTaskInput.value;
 
             editBtn.className = 'btn btn-light py-0 px-1';
@@ -136,7 +117,7 @@
                     editBtn.innerHTML = '&#9998;';
                     editBtn.style.fontSize = '1rem';
 
-                    updateTasksData(tasksListIndex, label.innerHTML ?? [tasksListIndex].taskName, checkerInput.checked);
+                    updateTasksData(tasksListIndex, label.innerHTML ?? tasks[index].taskName, checkerInput.checked);
                 }
             }
 
@@ -159,7 +140,7 @@
         }
 
         const updateTasksData = (tasksListIndex, taskName, checked, saveLocally = true) => {
-            console.log(tasksListIndex, taskName, checked, saveLocally)
+            // console.log(tasksListIndex, taskName, checked, saveLocally)
 
             // if task exist in tasks array, update it
             if (tasks[tasksListIndex]) {
@@ -182,11 +163,11 @@
             if (saveLocally) saveTasksToLocaleStorage();
         }
 
-        const deleteTask = (tasksListIndex, saveLocally = true) => {
-            console.log('deleteTask before', tasks, tasksListIndex, saveLocally)
-            tasks.splice(tasksListIndex, 1);
+        const deleteTask = (index, saveLocally = true) => {
+            console.log('deleteTask index', index, JSON.stringify(tasks, undefined, 4))
+            tasks.splice(index, 1);
             updateTasksDataIndex();
-            console.log('deleteTask after', tasks)
+            console.log(`%c\ndeleted task index ${index} of previous`, 'color: #ff0000', JSON.stringify(tasks, undefined, 4))
             if (saveLocally) saveTasksToLocaleStorage();
         }
 
@@ -209,6 +190,26 @@
             data.forEach(x => {
                 x && addTask(x.tasksListIndex, x.taskName, x.checked)
             })
+        }
+
+        const handleAddButtonDisable = () => {
+            if (!addTaskInput) return;
+            const hasValue = addTaskInput.value.trim() !== '';
+            if (hasValue && addTaskBtn.hasAttribute('disabled')) {
+                addTaskBtn.removeAttribute('disabled')
+                return;
+            }
+
+            if (!hasValue && addTaskBtn && !addTaskBtn.hasAttribute('disabled')) {
+                addTaskBtn.setAttribute('disabled', true)
+            }
+        }
+
+        addTaskInput.oninput = () => handleAddButtonDisable();
+        addTaskInput.onkeydown = (e) => {
+            if (e.keyCode === 13 && e.key === 'Enter' && addTaskInput.value.trim() !== '') {
+                addTask();
+            }
         }
 
         loadFromLocalStorage();
