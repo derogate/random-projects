@@ -73,27 +73,36 @@
             const label = document.createElement('label');
             const deleteBtn = document.createElement('button');
             const editBtn = document.createElement('button');
-
             if (!tasksList || !flexListItem) return;
-            const tasksListIndex = Array.from(tasksList.children).indexOf(flexListItem);
             
             flexListItem.className = 'list-group-item list-group-item-action hstack justify-content-between flex-wrap gap-2';
             wrapper_checkerInput_label.className = 'form-check hstack gap-2';
             wrapper_editBtn_deleteBtn.className = 'hstack flex-wrap gap-2';
+
+            wrapper_checkerInput_label.append(checkerInput, label);
+            wrapper_editBtn_deleteBtn.append(editBtn, deleteBtn);
+            flexListItem.append(wrapper_checkerInput_label, wrapper_editBtn_deleteBtn);
+            tasksList.append(flexListItem);
             
             if (isChecked) checkerInput.checked = true;
             checkerInput.className = 'form-check-input';
             checkerInput.setAttribute('type', 'checkbox');
-            checkerInput.setAttribute('id', `checkbox-task-${label.innerHTML}`);
+            checkerInput.setAttribute('id', `checkbox-task-${Array.from(tasksList.children).indexOf(flexListItem)}`);
             checkerInput.onchange = function onCheckboxChange(e) {
-                updateTasksData(tasksListIndex, label.innerHTML ?? [tasksListIndex].taskName, e.target.checked);
+                updateTasksData(
+                    Array.from(tasksList.children).indexOf(flexListItem), 
+                    label.innerHTML ?? tasks[Array.from(tasksList.children).indexOf(flexListItem)].taskName, 
+                    e.target.checked
+                );
             }
             
-            label.setAttribute('for', `checkbox-task-${label.innerHTML}`);
+            label.setAttribute('for', `checkbox-task-${Array.from(tasksList.children).indexOf(flexListItem)}`);
             label.className = 'text-break d-inline-block';
             label.innerHTML = name ? name 
-                : tasks[index] ? tasks[index].taskName 
-                : addTaskInput.value;
+                : addTaskInput.value ? addTaskInput.value 
+                : typeof index !== undefined && tasks[index] ? tasks[index]?.taskName 
+                : Array.from(tasksList.children).indexOf(flexListItem) !== -1 ? tasks[Array.from(tasksList.children).indexOf(flexListItem)]?.taskName
+                : '';
 
             editBtn.className = 'btn btn-light py-0 px-1';
             editBtn.innerHTML = '&#9998;';
@@ -117,31 +126,34 @@
                     editBtn.innerHTML = '&#9998;';
                     editBtn.style.fontSize = '1rem';
 
-                    updateTasksData(tasksListIndex, label.innerHTML ?? tasks[index].taskName, checkerInput.checked);
+                    updateTasksData(
+                        Array.from(tasksList.children).indexOf(flexListItem), 
+                        label.innerHTML ?? tasks[Array.from(tasksList.children).indexOf(flexListItem)].taskName, 
+                        checkerInput.checked
+                    );
                 }
             }
 
             deleteBtn.className = 'btn btn-light p-0';
             deleteBtn.innerHTML = '&#x1F5D1;';
             deleteBtn.onclick = function onDeleteTask() {
-                flexListItem.remove();
-                deleteTask(tasksListIndex);
+                deleteTask(
+                    Array.from(tasksList.children).indexOf(flexListItem), 
+                    () => flexListItem.remove()
+                );
             }
 
-            wrapper_checkerInput_label.append(checkerInput, label);
-            wrapper_editBtn_deleteBtn.append(editBtn, deleteBtn);
-            flexListItem.append(wrapper_checkerInput_label, wrapper_editBtn_deleteBtn);
-            tasksList.append(flexListItem);
-
-            if (saveLocally) updateTasksData(tasksListIndex, label.innerHTML, isChecked);
+            if (saveLocally) updateTasksData(
+                Array.from(tasksList.children).indexOf(flexListItem), 
+                label.innerHTML, 
+                isChecked
+            );
 
             addTaskInput.value = '';
             handleAddButtonDisable();
         }
 
         const updateTasksData = (tasksListIndex, taskName, checked, saveLocally = true) => {
-            // console.log(tasksListIndex, taskName, checked, saveLocally)
-
             // if task exist in tasks array, update it
             if (tasks[tasksListIndex]) {
                 tasks[tasksListIndex] = {
@@ -163,15 +175,14 @@
             if (saveLocally) saveTasksToLocaleStorage();
         }
 
-        const deleteTask = (index, saveLocally = true) => {
-            console.log('deleteTask index', index, JSON.stringify(tasks, undefined, 4))
+        const deleteTask = (index, callback, saveLocally = true) => {
             tasks.splice(index, 1);
             updateTasksDataIndex();
-            console.log(`%c\ndeleted task index ${index} of previous`, 'color: #ff0000', JSON.stringify(tasks, undefined, 4))
+            callback();
             if (saveLocally) saveTasksToLocaleStorage();
         }
 
-        const updateTasksDataIndex = async () => {
+        const updateTasksDataIndex = () => {
             tasks.forEach((task, index) => task.tasksListIndex = index);
         }
 
