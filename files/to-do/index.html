@@ -46,34 +46,13 @@
         <div class="hstack justify-content-between flex-wrap gap-2 py-3">
             <h1 class="mb-0">To-Do</h1>
             <button type="button" 
-                class="btn btn-danger opacity-0 invisible"
-                id="delete-all-tasks-confirm-btn"
+                class="btn btn-danger d-none"
+                id="delete-task-confirm-btn"
+                onclick="onConfirmDeleteAllTasks()"
                 data-bs-toggle="modal" 
                 data-bs-target="#delete-confirmation-modal">
                 Delete All
             </button>
-
-            <div class="modal fade" 
-                id="delete-confirmation-modal" 
-                tabindex="-1"
-                aria-labelledby="delete-confirmation-modal-label" 
-                aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="delete-confirmation-modal-label">Confirm Deletion</h1>
-                            <button type="button" class="btn-close delete-confirmation-modal-header-dismiss" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you want to delete all tasks?
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button onclick="deleteAllTasks()" type="button" class="btn btn-danger">Confirm</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="wrapper_create-task hstack gap-2 w-100">
             <input id="create-task" type="text" class="form-control" placeholder="Enter new task name">
@@ -87,11 +66,33 @@
         </div>
     </div>
 
+    <div class="modal fade" 
+        id="delete-confirmation-modal" 
+        tabindex="-1"
+        aria-labelledby="delete-confirmation-modal-label" 
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="delete-confirmation-modal-label">Confirm Deletion</h1>
+                    <button type="button" class="btn-close delete-confirmation-modal-header-dismiss" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete all tasks?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button onclick="confirmModalCallback()" type="button" class="btn btn-danger">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const addTaskInput = document.querySelector('#create-task');
         const addTaskBtn = document.querySelector('.create-task-btn');
         const tasksList = document.querySelector('ul.tasks-list');
+        const modalBody = document.querySelector('.modal-body');
         const localStorageKey = 'derogate/random-projects/to-do';
+        let confirmModalCallback = () => {};
         let tasks = [];
         
         const addTask = (index, name, isChecked, saveLocally = true) => {
@@ -169,11 +170,19 @@
 
             deleteBtn.className = 'btn btn-light p-0';
             deleteBtn.innerHTML = '&#x1F5D1;';
+            deleteBtn.setAttribute('data-bs-toggle', 'modal');
+            deleteBtn.setAttribute('data-bs-target', '#delete-confirmation-modal');
             deleteBtn.onclick = function onDeleteTask() {
-                deleteTask(
-                    Array.from(tasksList.children).indexOf(flexListItem), 
-                    () => flexListItem.remove()
-                );
+                modalBody.innerHTML = `Delete ${label.innerHTML ?? tasks[Array.from(tasksList.children).indexOf(flexListItem)].taskName} ?`
+                confirmModalCallback = () => {
+                    deleteTask(
+                        Array.from(tasksList.children).indexOf(flexListItem), 
+                        () => flexListItem.remove()
+                    );
+
+                    const dismissBtn = document.querySelector('.delete-confirmation-modal-header-dismiss');
+                    if (dismissBtn) dismissBtn.click();
+                }
             }
 
             if (saveLocally) updateTasksData(
@@ -217,6 +226,11 @@
             handleDeleteAllTasksButtonDisable();
         }
 
+        const onConfirmDeleteAllTasks = () => {
+            modalBody.innerHTML = `Delete all tasks?`;
+            confirmModalCallback = () => deleteAllTasks();
+        }
+
         const deleteAllTasks = (saveLocally = true) => {
             tasks = [];
             
@@ -246,11 +260,11 @@
         }
 
         const handleDeleteAllTasksButtonDisable = () => {
-            const btn = document.querySelector('#delete-all-tasks-confirm-btn');
+            const btn = document.querySelector('#delete-task-confirm-btn');
             if (tasks.length < 2) {
-                btn.classList.add('opacity-0', 'invisible');
+                btn.classList.add('d-none');
             } else {
-                btn.classList.remove('opacity-0', 'invisible');
+                btn.classList.remove('d-none');
             }
         }
 
