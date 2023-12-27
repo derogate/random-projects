@@ -112,7 +112,10 @@
 
                 if (!label.isContentEditable) {
                     label.contentEditable = true;
-                    label.focus();
+                    let selectionObj = window.getSelection();
+                    selectionObj.selectAllChildren(label);
+                    selectionObj.collapseToEnd();
+
                     checkerInput.setAttribute('disabled', true);
                     deleteBtn.setAttribute('disabled', true);
 
